@@ -1,0 +1,8 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=AviatoAuditor
+Exec=sudo python3 /media/sf_LinuxShare/auditor.py
+Icon=/media/sf_LinuxShare/Aviato.png
+Terminal=True
+Categories=Application;

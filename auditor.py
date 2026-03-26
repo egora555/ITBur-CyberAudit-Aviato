@@ -3,6 +3,7 @@ import PermissionsCheck as Permissions
 import AuditReporter
 import NetworkAudit as Network
 import PackageAudit as Package
+import subprocess
 
 import sys
 import os
@@ -28,10 +29,11 @@ class App:
         "package": AuditReporter.report_package
     }
 
+    config_file = "config.ini"
+
     output_file = None
 
     def __init__(self):
-        # Было вынесено в __init__, так-как функции были недоступны
         self.argument_commands = {"scan" : CommandInfo(App.run_file_audit, True),
                                   "output" : CommandInfo(App.set_output, True),
                                   "network" : CommandInfo(App.run_network_audit, False),
@@ -47,7 +49,7 @@ class App:
 
         self.results = self.handle_args(self.get_args())
 
-        self.gui_manager = GUIManager(self, "Auditor", window_size=(800, 600))
+        self.gui_manager = GUIManager(self, "Aviato Auditor", window_size=(830, 600))
 
         self.gui_manager.create_gui()
 
@@ -75,14 +77,6 @@ class App:
 
             self.write_output_file(command_output(result))
 
-            # if command.startswith("scan"):
-            #     self.write_output_file(AuditReporter.report_permissions(result))
-            # elif command == "network":
-            #     self.write_output_file(AuditReporter.report_network(result))
-            #
-            # elif command == "package":
-            #     self.write_output_file(AuditReporter.report_package(result))
-
 
     def handle_args(self, args : list[str]) -> dict:
         """
@@ -95,14 +89,9 @@ class App:
         """
 
         clean_args = [arg.lstrip("-") for arg in args]
-        if "output" not in clean_args and ("scan" in clean_args or "network" in clean_args or "package" in clean_args):
-            print("WARNING: файл вывода не указан!")
-            should_continue = input("Для продолжения введите y/n (при продолжении результаты будут написаны в консоли): ")
-            if should_continue in ["y", "yes", "true"]:
-                print("Продолжение...")
-            else:
-                print("Отмена...")
-                return {}
+        if "output" not in clean_args:
+            self.set_output(self.create_output_file())
+            print(f"Output-файл поставлен автоматически: {self.output_file}")
 
         results = {}
 
@@ -167,6 +156,67 @@ class App:
             i += 1
 
         return results
+            
+
+    @classmethod
+    def create_output_directory(cls) -> str:
+        """
+        Создаёт выводную папку 
+
+        Returns:
+            str: путь к папке
+        """
+
+        print("Создаём стандартную директорию вывода...")
+
+        current_length = 0
+
+        if not os.path.exists(cls.config_file):
+            with open(cls.config_file, "w") as file:
+                file.write(str(current_length))
+
+        with open(cls.config_file, "r") as file:
+            current_length = int(file.readline())
+
+        current_length += 1
+
+        with open(cls.config_file, "w") as file:
+            file.write(str(current_length))
+
+        now = datetime.datetime.now()
+
+        date = now.strftime(f"%d_%m_%Y")
+
+        path = f"output/[{current_length}] {date}"
+
+        if not os.path.exists("output"):
+            os.mkdir("output")
+
+        os.mkdir(path)
+        
+        return path
+
+    @classmethod
+    def create_output_file(cls) -> str:
+        """
+        Создаёт выходной файл в формате Ч_М_С
+
+        Returns:
+            str: путь к файлу
+
+        """
+
+        directory = cls.create_output_directory()
+
+        now = datetime.datetime.now()
+        file_name = now.strftime("%H_%M_%S") + ".txt"
+
+        file_path = directory + "/" + file_name
+
+        with open(file_path, "w"):
+            pass
+
+        return file_path
 
     @classmethod
     def run_file_audit(cls, path : str) -> Generator:
@@ -238,6 +288,7 @@ class App:
         Args:
             text (str): текст для записи в файл
         """
+
         if cls.output_file is None:
             return
 

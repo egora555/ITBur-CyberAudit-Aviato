@@ -76,7 +76,7 @@ class GUIManager(tk.Frame):
 
         ttk.Label(output_frame, text="Файл для вывода:").pack(side=tk.LEFT, padx=5)
 
-        self.output_file_var = tk.StringVar(value="")
+        self.output_file_var = tk.StringVar(value=self.app.output_file)
         output_entry = ttk.Entry(output_frame, textvariable=self.output_file_var, width=50)
         output_entry.pack(side=tk.LEFT, padx=5, fill=tk.X, expand=True)
 

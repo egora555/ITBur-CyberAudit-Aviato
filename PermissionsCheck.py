@@ -11,7 +11,7 @@ CURRENT_DIRECTORY = os.getcwd()
 USER_DIRECTORY = str(Path.home())
 KEY_DIRECTORIES = ['/etc', '/var', '/home']
 
-# Обычные паттерны для секретов (сгенерирован с помощью нейросети)
+# Обычные паттерны для секретов
 SECRET_PATTERNS = [
     # password/passwd — с границами слова, значение минимум 4 символа
     re.compile(r'\bpassword\s*[=:]\s*\S{4,}', re.IGNORECASE),
@@ -139,6 +139,7 @@ def check_permissions(path: str) -> list[WarningInfo]:
     Returns:
         List[WarningInfo]: предупреждения к файлу
     """
+    
     try:
         st = os.stat(path)
         mode = st.st_mode
@@ -193,6 +194,8 @@ def check_permissions(path: str) -> list[WarningInfo]:
                 level="LOW",
                 code="PERM-STICKY",
             ))
+
+    print("file", path, "results: ", warnings)
 
     return warnings
 
