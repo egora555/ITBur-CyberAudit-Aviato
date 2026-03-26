@@ -100,8 +100,9 @@
 ## Возможные проблемы
 
 **`ModuleNotFoundError: No module named 'tkinter'`**
-
     sudo apt-get install python3-tk
+
+    > Если программа всё ещё не запускается, попробуйте создать venv через python3 -m venv
 
 **`ERROR: Не удалось выполнить команду ss`**
 
